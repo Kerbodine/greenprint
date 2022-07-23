@@ -24,7 +24,7 @@ export default function Signup() {
     try {
       await signInWithGoogle();
       setLoading(false);
-      router.push("/home");
+      router.push("/dashboard");
     } catch (err) {
       setLoading(false);
     }

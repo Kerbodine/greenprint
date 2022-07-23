@@ -1,13 +1,13 @@
 import Head from "next/head";
 import React from "react";
 
-export default function dashboard() {
+export default function friends() {
   return (
     <>
       <Head>
-        <title>Dashboard | GreenPrint</title>
+        <title>Friends | GreenPrint</title>
       </Head>
-      <div>dashboard</div>
+      <div>friends</div>
     </>
   );
 }

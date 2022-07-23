@@ -1,4 +1,5 @@
 import Head from "next/head";
+import Image from "next/image";
 import Link from "next/link";
 import Navbar from "../components/Navbar";
 
@@ -9,10 +10,10 @@ export default function Home() {
         <title>Home | GreenPrint</title>
       </Head>
       <Navbar />
-      <div className="mx-auto mt-24 w-full max-w-7xl">
-        <div className="flex pt-24">
+      <div className="mx-auto w-full max-w-6xl px-8">
+        <div className="flex flex-col-reverse items-center pt-24 lg:flex-row">
           <div className="flex-1">
-            <h1 className="text-5xl font-bold tracking-tight">
+            <h1 className="text-4xl font-bold tracking-tight md:text-5xl">
               Never worry about your{" "}
               <span className="text-accent underline decoration-accent/30 underline-offset-2">
                 Carbon Footprint
@@ -33,7 +34,14 @@ export default function Home() {
               </button>
             </div>
           </div>
-          <div className="flex-1"></div>
+          <div className="flex-1">
+            <Image
+              src="/greenprint-cover.svg"
+              alt="GreenPrint"
+              width={640}
+              height={480}
+            />
+          </div>
         </div>
       </div>
     </>

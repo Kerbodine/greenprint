@@ -2,6 +2,11 @@ import { Radio, RadioGroup, Slider } from "@mantine/core";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { BiArrowToLeft, BiArrowToRight } from "react-icons/bi";
+import { getFirestore, doc, setDoc } from "firebase/firestore";
+import { nanoid } from "nanoid";
+import { useAuth } from "../contexts/AuthContext";
+import Loader from "../components/Loader";
+import { useRouter } from "next/router";
 
 const baseQuestions = [
   {
@@ -201,12 +206,40 @@ const baseQuestions = [
 ];
 
 export default function Quiz() {
+  const [loading, setLoading] = useState(false);
   const [questions, setQuestions] = useState(baseQuestions);
   const [quizStart, setQuizStart] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [currentAnswer, setCurrentAnswer] = useState(3);
 
-  const submitFormHandler = () => {};
+  const { user } = useAuth();
+
+  const router = useRouter();
+
+  const submitFormHandler = async () => {
+    questions.forEach((q) => console.log(typeof q.answer));
+    const answers = questions.map((q) => q.answer);
+    setLoading(true);
+    const response = await fetch("/api/submit", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({ answers }),
+    });
+    const data = await response.json();
+    console.log(data);
+    const id = nanoid();
+    await setDoc(doc(getFirestore(), "Users", user.uid, "Quizzes", id), {
+      id,
+      data,
+      answers: answers,
+      createdAt: new Date(),
+    });
+    setLoading(false);
+    router.push("/dashboard");
+  };
 
   useEffect(() => {
     if (questions[currentQuestion].answer) {
@@ -216,129 +249,155 @@ export default function Quiz() {
     }
   }, [currentQuestion]);
 
+  console.log(currentAnswer);
+
   return (
     <>
-      {quizStart ? (
-        <div className="flex h-full flex-col">
-          <div className="mb-8 flex h-3 w-full gap-2">
-            {questions.map((item, index) => (
-              <div
-                onClick={() => setCurrentQuestion(index)}
-                key={index}
-                className={`${
-                  currentQuestion === index ? "bg-accent" : "bg-gray-200"
-                } w-full rounded-full transition-transform hover:scale-y-[1.5]`}
-              ></div>
-            ))}
-          </div>
-          <div className="relative mb-8 aspect-video w-full">
-            <Image src={`/quiz${currentQuestion + 1}.svg`} layout="fill" />
-          </div>
-          <h1 className="mt-auto text-2xl font-bold leading-6 tracking-tight">
-            {currentQuestion + 1}: {questions[currentQuestion].question}
-          </h1>
-          {questions[currentQuestion].type === "slider" ? (
-            <Slider
-              key={currentQuestion}
-              className="mt-8 mb-4"
-              label={(val) =>
-                questions[currentQuestion].marks
-                  .filter((mark) => mark.value < val)
-                  .at(-1).text
-              }
-              value={currentAnswer}
-              marks={questions[currentQuestion].marks}
-              step={questions[currentQuestion].step}
-              min={0}
-              max={questions[currentQuestion].max}
-              styles={() => ({
-                markLabel: { display: "none" },
-                bar: {
-                  backgroundColor: "#059669",
-                },
-                thumb: {
-                  border: "2px solid #059669",
-                },
-                markFilled: {
-                  border: "2px solid #059669",
-                },
-              })}
-              onChange={(val) => {
-                setCurrentAnswer(val);
-              }}
-              onChangeEnd={(val) => {
-                const updated = [...questions];
-                updated[currentQuestion].answer = val;
-                setQuestions(updated);
-              }}
-            />
-          ) : (
-            <div className="ml-2 mt-4 mb-4 flex flex-col gap-2">
-              <RadioGroup
-                key={currentQuestion}
-                value={currentAnswer}
-                onChange={(val) => {
-                  const updated = [...questions];
-                  updated[currentQuestion].answer = val;
-                  setCurrentAnswer(val);
-                }}
-              >
-                {questions[currentQuestion].options.map((item, index) => (
-                  <Radio key={index} value={item} label={item} />
-                ))}
-              </RadioGroup>
-            </div>
-          )}
-          <span className="mb-8 rounded-lg bg-gray-100 px-3 py-1.5 text-gray-500">
-            Your Answer:{" "}
-            <span className="font-semibold text-gray-700">
-              {questions[currentQuestion].type === "slider"
-                ? Math.round(currentAnswer * 100) / 100
-                : currentAnswer}
-            </span>{" "}
-            {questions[currentQuestion].suffix}
-          </span>
-          <div className="mt-auto flex">
-            {currentQuestion > 0 && (
-              <button
-                onClick={() => setCurrentQuestion((prev) => prev - 1)}
-                className="flex items-center gap-2 rounded-lg border-2 border-gray-200 px-3 py-1.5 font-medium text-gray-500 transition-colors hover:bg-gray-100"
-              >
-                <BiArrowToLeft className="text-2xl" /> Previous
-              </button>
-            )}
-            {currentQuestion < questions.length - 1 && (
-              <button
-                onClick={() => {
-                  setCurrentQuestion((prev) => prev + 1);
-                }}
-                {...(currentAnswer === null && { disabled: true })}
-                className="ml-auto flex items-center gap-2 rounded-lg border-2 border-accent px-3 py-1.5 font-medium text-accent transition-colors hover:bg-accent hover:text-white"
-              >
-                Next <BiArrowToRight className="text-2xl" />
-              </button>
-            )}
-            {currentQuestion === questions.length - 1 && (
-              <button
-                onClick={submitFormHandler}
-                className="ml-auto flex items-center gap-2 rounded-lg border-2 border-accent px-3 py-1.5 font-medium text-accent transition-colors hover:bg-accent hover:text-white"
-              >
-                Submit
-              </button>
-            )}
-          </div>
-        </div>
+      {loading ? (
+        <Loader />
       ) : (
         <>
-          <h1 className="text-2xl font-bold tracking-tight">
-            Carbon Footprint Quiz
-          </h1>
-          <button
-            onClick={() => setQuizStart(true)}
-            className="mt-4 rounded-lg border-2 border-accent px-4 py-1.5 font-medium text-accent transition-colors hover:bg-accent hover:text-white"
-          >
-            Start
-          </button>
+          {quizStart ? (
+            <div className="flex h-full flex-col">
+              <div className="mb-8 flex h-2 w-full gap-2">
+                {questions.map((item, index) => (
+                  <div
+                    onClick={() => {
+                      if (questions[index].answer) {
+                        setCurrentQuestion(index);
+                      }
+                    }}
+                    key={index}
+                    className={`${
+                      currentQuestion === index ? "!bg-accent" : "bg-gray-200"
+                    } ${
+                      item.edited && "bg-accent/50"
+                    } w-full rounded-full transition-transform hover:scale-y-[1.5]`}
+                  ></div>
+                ))}
+              </div>
+              <div className="relative mb-8 aspect-video w-full">
+                <Image src={`/quiz${currentQuestion + 1}.svg`} layout="fill" />
+              </div>
+              <h1 className="mt-auto text-2xl font-bold leading-6 tracking-tight">
+                {currentQuestion + 1}: {questions[currentQuestion].question}
+              </h1>
+              {questions[currentQuestion].type === "slider" ? (
+                <Slider
+                  key={currentQuestion}
+                  className="mt-8 mb-4"
+                  label={(val) =>
+                    questions[currentQuestion].marks
+                      .filter((mark) => mark.value < val)
+                      .at(-1).text
+                  }
+                  value={currentAnswer}
+                  marks={questions[currentQuestion].marks}
+                  step={questions[currentQuestion].step}
+                  min={0}
+                  max={questions[currentQuestion].max}
+                  styles={() => ({
+                    markLabel: { display: "none" },
+                    bar: {
+                      backgroundColor: "#059669",
+                    },
+                    thumb: {
+                      border: "2px solid #059669",
+                    },
+                    markFilled: {
+                      border: "2px solid #059669",
+                    },
+                  })}
+                  onChange={(val) => {
+                    setCurrentAnswer(val);
+                  }}
+                  onChangeEnd={(val) => {
+                    const updated = [...questions];
+                    updated[currentQuestion].answer = val;
+                    updated[currentQuestion].edited = true;
+                    setQuestions(updated);
+                  }}
+                />
+              ) : (
+                <div className="ml-2 mt-4 mb-4 flex flex-col gap-2">
+                  <RadioGroup
+                    key={currentQuestion}
+                    value={currentAnswer}
+                    onChange={(val) => {
+                      const updated = [...questions];
+                      updated[currentQuestion].answer = val;
+                      updated[currentQuestion].edited = true;
+                      setCurrentAnswer(val);
+                    }}
+                  >
+                    {questions[currentQuestion].options.map((item, index) => (
+                      <Radio key={index} value={item} label={item} />
+                    ))}
+                  </RadioGroup>
+                </div>
+              )}
+              <span className="mb-8 rounded-lg bg-gray-100 px-3 py-1.5 text-gray-500">
+                Your Answer:{" "}
+                <span className="font-semibold text-gray-700">
+                  {questions[currentQuestion].type === "slider"
+                    ? Math.round(currentAnswer * 100) / 100
+                    : currentAnswer}
+                </span>{" "}
+                {questions[currentQuestion].suffix}
+              </span>
+              <div className="mt-auto flex">
+                {currentQuestion > 0 && (
+                  <button
+                    onClick={() => setCurrentQuestion((prev) => prev - 1)}
+                    className="flex items-center gap-2 rounded-lg border-2 border-gray-200 px-3 py-1.5 font-medium text-gray-500 transition-colors hover:bg-gray-100"
+                  >
+                    <BiArrowToLeft className="text-2xl" /> Previous
+                  </button>
+                )}
+                {currentQuestion < questions.length - 1 && (
+                  <button
+                    onClick={() => {
+                      setCurrentQuestion((prev) => prev + 1);
+                    }}
+                    {...((currentAnswer === undefined ||
+                      !questions[currentQuestion].edited) && {
+                      disabled: true,
+                    })}
+                    className="ml-auto flex items-center gap-2 rounded-lg border-2 border-accent px-3 py-1.5 font-medium text-accent transition-colors hover:bg-accent hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Next <BiArrowToRight className="text-2xl" />
+                  </button>
+                )}
+                {currentQuestion === questions.length - 1 && (
+                  <button
+                    {...((currentAnswer === undefined ||
+                      !questions[currentQuestion].edited) && {
+                      disabled: true,
+                    })}
+                    onClick={submitFormHandler}
+                    className="ml-auto flex items-center gap-2 rounded-lg border-2 border-accent px-3 py-1.5 font-medium text-accent transition-colors hover:bg-accent hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Submit
+                  </button>
+                )}
+              </div>
+            </div>
+          ) : (
+            <>
+              <h1 className="text-2xl font-bold tracking-tight">
+                Carbon Footprint Quiz
+              </h1>
+              <button
+                onClick={() => {
+                  setQuizStart(true);
+                  setQuestions(baseQuestions);
+                }}
+                className="mt-4 rounded-lg border-2 border-accent px-4 py-1.5 font-medium text-accent transition-colors hover:bg-accent hover:text-white"
+              >
+                Start
+              </button>
+            </>
+          )}
         </>
       )}
     </>

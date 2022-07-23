@@ -14,6 +14,7 @@
     "@mantine/next": "^4.2.12",
     "@tailwindcss/forms": "^0.5.2",
     "firebase": "^9.9.1",
+    "nanoid": "^3.3.4",
     "next": "12.2.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",

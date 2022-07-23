@@ -17,7 +17,6 @@ import {
   setDoc,
   updateDoc,
 } from "firebase/firestore";
-import app from "../config/firebase";
 
 const AuthContext = createContext();
 
@@ -30,8 +29,9 @@ export const AuthProvider = ({ children }) => {
   const [userData, setUserData] = useState(null);
   const [username, setUsername] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [quizData, setQuizData] = useState(null);
 
-  const db = getFirestore(app);
+  const db = getFirestore();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -134,6 +134,8 @@ export const AuthProvider = ({ children }) => {
         updateDisplayName,
         signInWithGoogle,
         createUsername,
+        quizData,
+        setQuizData,
       }}
     >
       {!loading && children}

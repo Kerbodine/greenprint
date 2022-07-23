@@ -29,7 +29,6 @@ export default function Username() {
     } catch (e) {
       setLoading(false);
       setError("Something went wrong");
-      console.log(e);
     }
   };
 

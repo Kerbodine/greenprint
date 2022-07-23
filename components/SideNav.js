@@ -2,8 +2,10 @@ import React from "react";
 import {
   BiCategory,
   BiCog,
+  BiHeartCircle,
   BiInfoCircle,
   BiMenu,
+  BiSelectMultiple,
   BiSpa,
   BiUserCircle,
 } from "react-icons/bi";
@@ -44,8 +46,9 @@ const SideNav = () => {
           title="Dashboard"
           link={"/dashboard"}
         />
+        <SideNavItem icon={<BiSelectMultiple />} title="Quiz" link={"/quiz"} />
         <SideNavItem
-          icon={<BiUserCircle />}
+          icon={<BiHeartCircle />}
           title="Friends"
           link={"/friends"}
         />
@@ -54,8 +57,12 @@ const SideNav = () => {
           title="Statistics"
           link={"/stats"}
         />
-        <SideNavItem icon={<BiSpa />} title="Partners" link={"/partners"} />
-        <SideNavItem icon={<BiCog />} title="Settings" link={"/settings"} />
+        <SideNavItem icon={<BiSpa />} title="Resources" link={"/resources"} />
+        <SideNavItem
+          icon={<BiUserCircle />}
+          title="Profile"
+          link={"/profile"}
+        />
         {/* Profile Button */}
         <div className="mt-auto flex w-full items-center rounded-lg">
           <div className="no-select grid h-8 w-8 flex-none place-items-center rounded-full bg-accent font-medium text-white">

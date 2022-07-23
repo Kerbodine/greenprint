@@ -1,4 +1,5 @@
 import Head from "next/head";
+import Link from "next/link";
 import Navbar from "../components/Navbar";
 
 export default function Home() {
@@ -22,9 +23,11 @@ export default function Home() {
               Climate action is just one click away.
             </p>
             <div className="mt-8 flex gap-4">
-              <button className="rounded-lg bg-accent px-4 py-2 text-lg font-medium text-white transition-colors hover:bg-emerald-700">
-                Get started →
-              </button>
+              <Link href="/signup">
+                <button className="rounded-lg bg-accent px-4 py-2 text-lg font-medium text-white transition-colors hover:bg-emerald-700">
+                  Get started →
+                </button>
+              </Link>
               <button className="rounded-lg border-2 border-accent px-4 py-2 text-lg font-medium text-accent transition-colors hover:bg-accent/20">
                 Learn more
               </button>

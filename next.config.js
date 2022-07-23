@@ -7,4 +7,8 @@ module.exports = {
     });
     return config;
   },
+  images: {
+    domains: ["lh3.googleusercontent.com"],
+    formats: ["image/avif", "image/webp"],
+  },
 };

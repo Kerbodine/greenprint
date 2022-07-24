@@ -11,11 +11,16 @@ import {
 } from "firebase/auth";
 import { auth } from "../config/firebase";
 import {
+  collection,
   doc,
+  getDocs,
   getFirestore,
+  limit,
   onSnapshot,
+  query,
   setDoc,
   updateDoc,
+  where,
 } from "firebase/firestore";
 
 const AuthContext = createContext();
@@ -27,7 +32,6 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [userData, setUserData] = useState(null);
-  const [username, setUsername] = useState(null);
   const [loading, setLoading] = useState(true);
   const [quizData, setQuizData] = useState(null);
 
@@ -50,7 +54,6 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       unsubscribe = onSnapshot(doc(db, "Users", user.uid), (document) => {
         setUserData(document.data());
-        setUsername(document.data()?.username);
         setLoading(false);
       });
     }
@@ -66,7 +69,6 @@ export const AuthProvider = ({ children }) => {
       firstName: cred.user.displayName.split(" ")[0],
       lastName: cred.user.displayName.split(" ")[1],
       email: cred.user.email,
-      username: null,
       photoURL,
       createdAt: new Date(),
     };
@@ -115,11 +117,31 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const createUsername = async (username) => {
-    await setDoc(doc(db, "Usernames", username), {});
-    await updateDoc(doc(db, "Users", auth.currentUser.uid), {
-      username,
+  const addFriend = async (email) => {
+    const friend = await getDocs(
+      query(collection(db, "Users"), where("email", "==", email), limit(1))
+    );
+    let friendData;
+    let friendId;
+    friend.forEach((doc) => (friendId = doc.id));
+    if (friendId === user.uid) {
+      return "You can't add yourself as a friend";
+    } else if (friendId === undefined) {
+      return "User not found";
+    }
+    friend.forEach((doc) => (friendData = doc.data()));
+    console.log(friendData);
+    await updateDoc(doc(db, "Users", user.uid), {
+      friends: [
+        ...(userData.friends ? userData.friends : []),
+        {
+          id: friendId,
+          displayName: friendData.displayName,
+          email: friendData.email,
+        },
+      ],
     });
+    return "Friend added";
   };
 
   return (
@@ -127,16 +149,15 @@ export const AuthProvider = ({ children }) => {
       value={{
         user,
         userData,
-        username,
         login,
         signup,
         resetPassword,
         logout,
         updateDisplayName,
         signInWithGoogle,
-        createUsername,
         quizData,
         setQuizData,
+        addFriend,
       }}
     >
       {!loading && children}

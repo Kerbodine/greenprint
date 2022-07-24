@@ -6,7 +6,6 @@ import PublicRoute from "../components/PublicRoute";
 import { AuthProvider } from "../contexts/AuthContext";
 import { ViewProvider } from "../contexts/ViewContext";
 import "../styles/globals.css";
-import Username from "./username";
 
 function MyApp({ Component, pageProps }) {
   const router = useRouter();
@@ -22,13 +21,9 @@ function MyApp({ Component, pageProps }) {
       ) : (
         <PrivateRoute>
           <ViewProvider>
-            {router.pathname === "/username" ? (
-              <Username />
-            ) : (
-              <MainView>
-                <Component {...pageProps} />
-              </MainView>
-            )}
+            <MainView>
+              <Component {...pageProps} />
+            </MainView>
             <Toaster />
           </ViewProvider>
         </PrivateRoute>

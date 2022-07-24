@@ -9,16 +9,16 @@ import Head from "next/head";
 import React from "react";
 
 export default function UserProfile({ data }) {
+  console.log(data);
+
   return (
     <>
       {data ? (
         <>
           <Head>
-            <title>@{data.username} | GreenPrint</title>
+            <title>Profile | GreenPrint</title>
           </Head>
-          <h1 className="text-2xl font-bold tracking-tight">
-            @{data.username} Profile:
-          </h1>
+          <h1 className="text-2xl font-bold tracking-tight">Profile:</h1>
           <div className="relative mt-4 h-36 w-full rounded-lg bg-gray-100 p-8">
             <div className="h-64 w-64 rounded-lg border-2 border-gray-200 bg-white p-4">
               <div className="flex items-center gap-3">
@@ -47,20 +47,24 @@ export async function getServerSideProps(context) {
   const userData = await getDocs(
     query(
       collection(db, "Users"),
-      where("username", "==", context.query.username)
+      where("username", "==", context.params.username)
     )
   );
   let data;
+
   userData.forEach((user) => {
     data = user.data();
   });
+
   if (data) {
     delete data.createdAt;
   }
 
+  console.log(data);
+
   return {
     props: {
-      data: data ? data : null,
+      data,
     },
   };
 }

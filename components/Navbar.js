@@ -8,9 +8,8 @@ export default function Navbar() {
       <li className="flex items-center">
         <Logo className="relative h-auto" />
       </li>
-      <div className="ml-auto h-8 w-0.5 bg-gray-100"></div>
       <Link href="/login">
-        <button className="ml-2 rounded-lg px-3 py-2 font-medium text-gray-600 hover:bg-gray-100">
+        <button className="ml-auto rounded-lg px-3 py-2 font-medium text-gray-600 hover:bg-gray-100">
           Log in
         </button>
       </Link>

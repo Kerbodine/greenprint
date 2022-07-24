@@ -38,7 +38,7 @@ export default function Signup() {
       await signup(email, password, firstName, lastName);
       await updateDisplayName(`${firstName} ${lastName}`);
       setLoading(false);
-      router.push("/username");
+      router.push("/dashboard");
     } catch (err) {
       setLoading(false);
       switch (err.code) {

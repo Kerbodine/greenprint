@@ -22,9 +22,9 @@ const SideNav = () => {
     <div
       className={`${
         sideNav ? "w-[240px]" : "w-[56px] sm:w-[240px]"
-      } absolute z-10 box-content h-full flex-none border-r-2 border-gray-100 bg-white transition-all sm:relative`}
+      } absolute z-10 box-content h-full flex-none border-x-2 border-gray-100 bg-white transition-all sm:relative`}
     >
-      <div className="flex h-[56px] w-full items-center border-b-2 border-gray-100 px-3">
+      <div className="flex h-[56px] w-full items-center px-3">
         {/* Logo branding */}
         <div
           className={`${

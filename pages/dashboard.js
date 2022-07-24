@@ -74,6 +74,13 @@ export default function Dashboard() {
                 title={"Take more public transportation"}
               />
             )}
+          {quizData.answers[7] !== "Often" &&
+            quizData.answers[7] !== "Always" && (
+              <SuggestionCard
+                icon={<BiTrain />}
+                title={"Take more public transportation"}
+              />
+            )}
         </div>
       )}
     </>

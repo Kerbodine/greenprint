@@ -104,8 +104,10 @@ const submitForm = async (req, res) => {
 
   // sum co2e from data.results
   let co2 = 0;
+  let co2Array = [];
   data.results.forEach((result) => {
     co2 += result.co2e;
+    co2Array.push(result.co2e);
   });
 
   // let ch4 = 0;
@@ -121,6 +123,7 @@ const submitForm = async (req, res) => {
   res.status(200).send(
     JSON.stringify({
       co2,
+      co2Array,
       // ch4,
       // n2o,
     })

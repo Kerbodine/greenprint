@@ -1,12 +1,19 @@
 import { Radio, RadioGroup, Slider } from "@mantine/core";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
-import { BiArrowToLeft, BiArrowToRight } from "react-icons/bi";
-import { getFirestore, doc, setDoc } from "firebase/firestore";
+import {
+  BiArrowToLeft,
+  BiArrowToRight,
+  BiCar,
+  BiPaperPlane,
+  BiPlug,
+  BiTrash,
+} from "react-icons/bi";
+import { getFirestore, doc, setDoc, updateDoc } from "firebase/firestore";
 import { nanoid } from "nanoid";
 import { useAuth } from "../contexts/AuthContext";
 import Loader from "../components/Loader";
-import { useRouter } from "next/router";
+import Link from "next/link";
 
 const baseQuestions = [
   {
@@ -211,10 +218,14 @@ export default function Quiz() {
   const [quizStart, setQuizStart] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [currentAnswer, setCurrentAnswer] = useState(3);
+  const [quizData, setQuizData] = useState({});
+  const [quizComplete, setQuizComplete] = useState(false);
 
   const { user } = useAuth();
 
-  const router = useRouter();
+  const calcScore = (co2) => {
+    return 100 - Math.round((co2 / 6154.368792) * 100);
+  };
 
   const submitFormHandler = async () => {
     questions.forEach((q) => console.log(typeof q.answer));
@@ -237,8 +248,14 @@ export default function Quiz() {
       answers: answers,
       createdAt: new Date(),
     });
+    await updateDoc(doc(getFirestore(), "Users", user.uid), {
+      score: data.co2,
+      percent: calcScore(data.co2),
+    });
+    setQuizData(data);
+    setQuizComplete(true);
+    console.log(data);
     setLoading(false);
-    router.push("/dashboard");
   };
 
   useEffect(() => {
@@ -257,7 +274,69 @@ export default function Quiz() {
         <Loader />
       ) : (
         <>
-          {quizStart ? (
+          {quizComplete ? (
+            <div className="flex h-full w-full flex-col items-center justify-center">
+              <div className="flex flex-col items-center rounded-2xl border-2 border-gray-200 p-8 shadow-lg">
+                <h1 className="text-2xl font-bold tracking-tight text-accent">
+                  Quiz Completed!
+                </h1>
+                <p className="mb-4 text-xl font-semibold text-gray-500">
+                  Your Results:
+                </p>
+                <p className="text-5xl font-bold tracking-tight text-gray-500">
+                  {Math.round(quizData.co2 * 100) / 100}
+                  <span className="text-2xl"> kg</span>
+                </p>
+                <p className="-mt-1 text-xl font-bold text-gray-400">
+                  CO2 Emissions
+                </p>
+                <p className="mt-4 text-5xl font-bold tracking-tight text-gray-500">
+                  {calcScore(quizData.co2)}%
+                </p>
+                <p className="-mt-1 text-xl font-bold text-gray-400">
+                  Percentage Score
+                </p>
+                <div className="mt-4 space-y-2 text-gray-700">
+                  <p className="flex gap-1">
+                    <BiPlug className="text-2xl text-accent" />
+                    Energy:{" "}
+                    <span className="font-semibold">
+                      {Math.round(
+                        (quizData.co2Array[0] + quizData.co2Array[1]) * 100
+                      ) / 100}{" "}
+                      kg
+                    </span>
+                  </p>
+                  <p className="flex gap-1">
+                    <BiTrash className="text-2xl text-accent" />
+                    Waste:{" "}
+                    <span className="font-semibold">
+                      {Math.round(quizData.co2Array[2] * 100) / 100} kg
+                    </span>
+                  </p>
+                  <p className="flex gap-1">
+                    <BiPaperPlane className="text-2xl text-accent" />
+                    Flight:{" "}
+                    <span className="font-semibold">
+                      {Math.round(quizData.co2Array[3] * 100) / 100} kg
+                    </span>
+                  </p>
+                  <p className="flex gap-1">
+                    <BiCar className="text-2xl text-accent" />
+                    Driving:{" "}
+                    <span className="font-semibold">
+                      {Math.round(quizData.co2Array[4] * 100) / 100} kg
+                    </span>
+                  </p>
+                </div>
+                <Link href="/dashboard">
+                  <button className="mt-8 rounded-lg border-2 border-accent px-3 py-1 font-medium text-accent transition-colors hover:bg-accent hover:text-white">
+                    To dashboard
+                  </button>
+                </Link>
+              </div>
+            </div>
+          ) : quizStart ? (
             <div className="flex h-full flex-col">
               <div className="mb-8 flex h-2 w-full gap-2">
                 {questions.map((item, index) => (

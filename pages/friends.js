@@ -32,7 +32,7 @@ export default function Friends() {
               id={friend.id}
               name={friend.displayName}
               email={friend.email}
-              score={friend.score}
+              score={877.03722}
             />
           ))
         ) : (

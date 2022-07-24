@@ -387,12 +387,18 @@ export default function Quiz() {
               <h1 className="text-2xl font-bold tracking-tight">
                 Carbon Footprint Quiz
               </h1>
+              <Image
+                src="/quiz.svg"
+                className="aspect-video w-full"
+                width={400}
+                height={400}
+              />
               <button
                 onClick={() => {
                   setQuizStart(true);
                   setQuestions(baseQuestions);
                 }}
-                className="mt-4 rounded-lg border-2 border-accent px-4 py-1.5 font-medium text-accent transition-colors hover:bg-accent hover:text-white"
+                className="mt-4 block rounded-lg border-2 border-accent px-4 py-1.5 font-medium text-accent transition-colors hover:bg-accent hover:text-white"
               >
                 Start
               </button>

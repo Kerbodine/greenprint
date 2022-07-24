@@ -1,39 +1,13 @@
 import Head from "next/head";
-import React, { useEffect } from "react";
+import React from "react";
 import SuggestionCard from "../components/SuggestionCard";
 import { useAuth } from "../contexts/AuthContext";
-import {
-  collection,
-  getFirestore,
-  limit,
-  onSnapshot,
-  orderBy,
-  query,
-} from "firebase/firestore";
 import Image from "next/image";
 import Link from "next/link";
 import { BiTrain } from "react-icons/bi";
 
 export default function Dashboard() {
-  const { user, userData, quizData, setQuizData } = useAuth();
-
-  useEffect(() => {
-    const unsubscribe = onSnapshot(
-      query(
-        collection(getFirestore(), "Users", user.uid, "Quizzes"),
-        limit(1),
-        orderBy("createdAt", "desc")
-      ),
-      (documents) => {
-        setQuizData(documents.docs[0]?.data());
-      }
-    );
-    return () => {
-      unsubscribe();
-    };
-  }, []);
-
-  console.log(quizData);
+  const { userData, quizData } = useAuth();
 
   return (
     <>

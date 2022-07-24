@@ -3,14 +3,16 @@ import React from "react";
 import { useAuth } from "../contexts/AuthContext";
 
 export default function Profile() {
-  const { userData } = useAuth();
+  const { userData, logout } = useAuth();
 
   return (
     <>
       <Head>
         <title>Profile | GreenPrint</title>
       </Head>
-      <h1 className="text-2xl font-bold tracking-tight">Your Profile:</h1>
+      <h1 className="text-2xl font-bold tracking-tight">
+        Your Profile: @{userData.username}
+      </h1>
       <div className="relative mt-4 h-36 w-full rounded-lg bg-gray-100 p-8">
         <div className="h-64 w-64 rounded-lg border-2 border-gray-200 bg-white p-4">
           <div className="flex items-center gap-3">
@@ -24,6 +26,12 @@ export default function Profile() {
               <p className="-mt-1 truncate text-gray-500">{userData.email}</p>
             </div>
           </div>
+          <button
+            onClick={logout}
+            className="mt-4 rounded-lg border-2 border-gray-200 px-3 py-1.5 font-medium text-gray-700"
+          >
+            Sign out
+          </button>
         </div>
       </div>
     </>
